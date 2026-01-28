@@ -52,7 +52,7 @@ kubectl get svc claims-api-nlb -o jsonpath='{.status.loadBalancer.ingress[0].hos
 Deploy CodeBuild and CodeDeploy for automated builds and deployments:
 
 ```cmd
-aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect2.git --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2.git --capabilities CAPABILITY_IAM
 ```
 
 ### 6. API Gateway with VPC Link
