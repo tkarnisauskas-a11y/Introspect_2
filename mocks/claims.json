@@ -1,0 +1,60 @@
+{
+  "claims": [
+    {
+      "id": "CLM-2024-001",
+      "status": "open",
+      "policyNumber": "POL-123456",
+      "claimType": "auto",
+      "dateReported": "2024-01-15T10:30:00Z",
+      "estimatedAmount": 5500.00
+    },
+    {
+      "id": "CLM-2024-002",
+      "status": "under_review",
+      "policyNumber": "POL-789012",
+      "claimType": "property",
+      "dateReported": "2024-01-20T14:15:00Z",
+      "estimatedAmount": 12000.00
+    },
+    {
+      "id": "CLM-2024-003",
+      "status": "approved",
+      "policyNumber": "POL-345678",
+      "claimType": "health",
+      "dateReported": "2024-01-25T09:45:00Z",
+      "estimatedAmount": 2800.00
+    },
+    {
+      "id": "CLM-2024-004",
+      "status": "denied",
+      "policyNumber": "POL-901234",
+      "claimType": "auto",
+      "dateReported": "2024-02-01T16:20:00Z",
+      "estimatedAmount": 8200.00
+    },
+    {
+      "id": "CLM-2024-005",
+      "status": "open",
+      "policyNumber": "POL-567890",
+      "claimType": "life",
+      "dateReported": "2024-02-05T11:10:00Z",
+      "estimatedAmount": 50000.00
+    },
+    {
+      "id": "CLM-2024-006",
+      "status": "processing",
+      "policyNumber": "POL-234567",
+      "claimType": "property",
+      "dateReported": "2024-02-10T13:30:00Z",
+      "estimatedAmount": 7500.00
+    },
+    {
+      "id": "CLM-2024-007",
+      "status": "closed",
+      "policyNumber": "POL-678901",
+      "claimType": "health",
+      "dateReported": "2024-02-15T08:25:00Z",
+      "estimatedAmount": 1200.00
+    }
+  ]
+}

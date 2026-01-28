@@ -1,0 +1,105 @@
+{
+  "notes": [
+    {
+      "claimId": "CLM-2024-001",
+      "entries": [
+        {
+          "timestamp": "2024-01-15T10:30:00Z",
+          "author": "John Smith",
+          "type": "initial_report",
+          "content": "Customer reported rear-end collision at intersection of Main St and Oak Ave. Vehicle sustained damage to rear bumper and trunk. Customer was not injured. Other driver admitted fault at scene."
+        },
+        {
+          "timestamp": "2024-01-16T14:20:00Z",
+          "author": "Sarah Johnson",
+          "type": "adjuster_note",
+          "content": "Inspected vehicle at repair shop. Damage consistent with reported incident. Estimate from shop is $5,200. Recommend approval for repairs."
+        }
+      ]
+    },
+    {
+      "claimId": "CLM-2024-002",
+      "entries": [
+        {
+          "timestamp": "2024-01-20T14:15:00Z",
+          "author": "Mike Davis",
+          "type": "initial_report",
+          "content": "Water damage to basement due to burst pipe. Customer discovered flooding on morning of 1/20. Affected area includes finished basement with carpet, drywall, and furniture."
+        },
+        {
+          "timestamp": "2024-01-22T09:30:00Z",
+          "author": "Lisa Chen",
+          "type": "investigation",
+          "content": "Site visit completed. Pipe failure appears to be due to freezing temperatures. No evidence of negligence. Recommend coverage approval pending final estimate."
+        }
+      ]
+    },
+    {
+      "claimId": "CLM-2024-003",
+      "entries": [
+        {
+          "timestamp": "2024-01-25T09:45:00Z",
+          "author": "Robert Wilson",
+          "type": "medical_claim",
+          "content": "Emergency room visit for chest pain. Patient underwent EKG and blood work. Diagnosed with anxiety attack, not cardiac event. Treatment included observation and medication."
+        }
+      ]
+    },
+    {
+      "claimId": "CLM-2024-004",
+      "entries": [
+        {
+          "timestamp": "2024-02-01T16:20:00Z",
+          "author": "Jennifer Brown",
+          "type": "initial_report",
+          "content": "Single vehicle accident - customer claims deer ran into road. Vehicle hit tree avoiding deer. Significant front-end damage."
+        },
+        {
+          "timestamp": "2024-02-03T11:15:00Z",
+          "author": "Tom Anderson",
+          "type": "investigation",
+          "content": "Investigation reveals no evidence of deer impact on vehicle. Damage pattern inconsistent with deer avoidance. Suspect driver error or impairment. Recommend denial."
+        }
+      ]
+    },
+    {
+      "claimId": "CLM-2024-005",
+      "entries": [
+        {
+          "timestamp": "2024-02-05T11:10:00Z",
+          "author": "Patricia Martinez",
+          "type": "death_claim",
+          "content": "Beneficiary filed life insurance claim. Insured passed away from natural causes on 2/3/2024. Death certificate provided. Policy in good standing, no outstanding issues."
+        }
+      ]
+    },
+    {
+      "claimId": "CLM-2024-006",
+      "entries": [
+        {
+          "timestamp": "2024-02-10T13:30:00Z",
+          "author": "David Lee",
+          "type": "fire_damage",
+          "content": "Kitchen fire caused by grease ignition. Fire department responded quickly, damage contained to kitchen area. Smoke damage throughout first floor. Customer and family safe."
+        },
+        {
+          "timestamp": "2024-02-12T10:45:00Z",
+          "author": "Amanda Taylor",
+          "type": "adjuster_note",
+          "content": "Preliminary assessment shows $7,500 in damages. Kitchen requires full renovation, smoke remediation needed for adjacent rooms. Awaiting final contractor estimates."
+        }
+      ]
+    },
+    {
+      "claimId": "CLM-2024-007",
+      "entries": [
+        {
+          "timestamp": "2024-02-15T08:25:00Z",
+          "author": "Kevin White",
+          "type": "medical_claim",
+          "content": "Routine dental cleaning and filling. Pre-authorized procedure completed without complications. Claim processed and payment issued to provider."
+        }
+      ]
+    }
+  ]
+}

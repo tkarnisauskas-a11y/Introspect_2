@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'DynamoDB table and S3 bucket for claims API'
+
+Parameters:
+  TableName:
+    Type: String
+    Default: claims
+  BucketName:
+    Type: String
+    Default: claim-notes
+
+Resources:
+  ClaimsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Ref TableName
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      Tags:
+        - Key: Environment
+          Value: production
+        - Key: Application
+          Value: claims-api
+
+  ClaimNotesS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${BucketName}-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Environment
+          Value: production
+        - Key: Application
+          Value: claims-api
+
+Outputs:
+  DynamoDBTableName:
+    Description: Name of the DynamoDB table
+    Value: !Ref ClaimsTable
+    Export:
+      Name: !Sub '${AWS::StackName}-DynamoDBTable'
+  
+  S3BucketName:
+    Description: Name of the S3 bucket
+    Value: !Ref ClaimNotesS3Bucket
+    Export:
+      Name: !Sub '${AWS::StackName}-S3Bucket'
