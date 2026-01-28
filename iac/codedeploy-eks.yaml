@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CodeDeploy for EKS - Claims API Deployment'
+
+Parameters:
+  EKSClusterName:
+    Type: String
+    Default: introspect-2-cluster
+    Description: Name of the EKS cluster
+  
+  KubernetesNamespace:
+    Type: String
+    Default: default
+    Description: Kubernetes namespace for deployment
+
+Resources:
+  # Step 1: CodeDeploy Service Role
+  CodeDeployEKSServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'CodeDeployServiceRoleForEKS-${AWS::StackName}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codedeploy.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForEKS
+      Path: /
+
+  # Step 2: CodeDeploy Application
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: claims-api-eks
+      ComputePlatform: EKS
+
+  # Step 3: CodeDeploy Deployment Group
+  CodeDeployDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      DeploymentGroupName: claims-api-dg
+      ServiceRoleArn: !GetAtt CodeDeployEKSServiceRole.Arn
+      DeploymentConfigName: CodeDeployDefault.EKSCanaryLinear10PercentEvery5Minutes
+      EksClusterName: !Ref EKSClusterName
+      BlueGreenDeploymentConfiguration:
+        TerminateBlueInstancesOnDeploymentSuccess:
+          Action: TERMINATE
+          TerminationWaitTimeInMinutes: 5
+        DeploymentReadyOption:
+          ActionOnTimeout: CONTINUE_DEPLOYMENT
+        GreenFleetProvisioningOption:
+          Action: COPY_AUTO_SCALING_GROUP
+
+  # Step 4: S3 Bucket for CodeDeploy Artifacts
+  CodeDeployArtifactsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'codedeploy-eks-artifacts-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+Outputs:
+  CodeDeployApplicationName:
+    Description: CodeDeploy Application Name
+    Value: !Ref CodeDeployApplication
+    Export:
+      Name: !Sub '${AWS::StackName}-CodeDeployApp'
+  
+  CodeDeployDeploymentGroupName:
+    Description: CodeDeploy Deployment Group Name
+    Value: !Ref CodeDeployDeploymentGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-CodeDeployDG'
+  
+  CodeDeployServiceRoleArn:
+    Description: CodeDeploy Service Role ARN
+    Value: !GetAtt CodeDeployEKSServiceRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-CodeDeployRole'
+  
+  ArtifactsBucketName:
+    Description: S3 Bucket for CodeDeploy Artifacts
+    Value: !Ref CodeDeployArtifactsBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-ArtifactsBucket'

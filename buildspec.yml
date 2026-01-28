@@ -28,6 +28,9 @@ phases:
       - echo Creating deployment artifacts...
       - sed -i "s|claims-api:latest|$REPOSITORY_URI:$IMAGE_TAG|g" k8s/deployment.yaml
       - printf '{"imageUri":"%s","imageTag":"%s"}' $REPOSITORY_URI:$IMAGE_TAG $IMAGE_TAG > imageDetail.json
+      - echo Building CodeDeploy artifacts...
+      - chmod +x scripts/build-codedeploy-artifacts.sh
+      - ./scripts/build-codedeploy-artifacts.sh
 artifacts:
   files:
     - k8s/**/*

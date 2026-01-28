@@ -80,3 +80,15 @@ Returns claim information for the specified ID.
 - `DYNAMODB_TABLE_NAME` - DynamoDB table name
 - `AWS_ACCESS_KEY_ID` - AWS access key
 - `AWS_SECRET_ACCESS_KEY` - AWS secret key
+
+## AWS Deployment
+
+### Deploy CodeDeploy for EKS:
+```bash
+aws cloudformation deploy --template-file iac/codedeploy-eks.yaml --stack-name claims-api-codedeploy --capabilities CAPABILITY_NAMED_IAM --parameter-overrides EKSClusterName=introspect-2-cluster
+```
+
+### Deploy full CI/CD pipeline:
+```bash
+aws cloudformation deploy --template-file iac/codebuild-codedeploy.yaml --stack-name claims-api-pipeline --capabilities CAPABILITY_NAMED_IAM --parameter-overrides EKSClusterName=introspect-2-cluster
+```

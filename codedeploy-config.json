@@ -1,0 +1,23 @@
+{
+  "applicationName": "claims-api-eks",
+  "deploymentGroupName": "claims-api-dg",
+  "serviceRoleArn": "arn:aws:iam::${AWS::AccountId}:role/CodeDeployServiceRoleForEKS-${StackName}",
+  "deploymentConfigName": "CodeDeployDefault.EKSCanaryLinear10PercentEvery5Minutes",
+  "eksService": {
+    "serviceName": "claims-api-service",
+    "clusterName": "introspect-2-cluster",
+    "namespace": "default"
+  },
+  "blueGreenDeploymentConfiguration": {
+    "terminateBlueInstancesOnDeploymentSuccess": {
+      "action": "TERMINATE",
+      "terminationWaitTimeInMinutes": 5
+    },
+    "deploymentReadyOption": {
+      "actionOnTimeout": "CONTINUE_DEPLOYMENT"
+    },
+    "greenFleetProvisioningOption": {
+      "action": "COPY_AUTO_SCALING_GROUP"
+    }
+  }
+}

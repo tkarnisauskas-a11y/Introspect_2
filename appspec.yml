@@ -7,16 +7,4 @@ Resources:
         LoadBalancer:
           ContainerName: "claims-api"
           ContainerPort: 5000
-Hooks:
-  - BeforeInstall:
-      - location: scripts/install_dependencies.ps1
-        timeout: 300
-        runas: root
-  - ApplicationStart:
-      - location: scripts/start_server.ps1
-        timeout: 300
-        runas: root
-  - ApplicationStop:
-      - location: scripts/stop_server.ps1
-        timeout: 300
-        runas: root
+          TargetGroupArn: <TARGET_GROUP_ARN>

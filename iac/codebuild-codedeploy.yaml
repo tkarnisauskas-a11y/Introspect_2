@@ -40,13 +40,19 @@ Resources:
               - Effect: Allow
                 Action:
                   - ecr:*
-                  - s3:GetObject
-                  - s3:PutObject
+                  - s3:*
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetApplication
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentGroup
+                  - codedeploy:ListApplications
+                  - codedeploy:ListDeploymentGroups
                 Resource: '*'
 
   CodeDeployServiceRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: CodeDeployServiceRoleForEKS
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -55,16 +61,20 @@ Resources:
               Service: codedeploy.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForEKS
       Policies:
-        - PolicyName: EKSAccess
+        - PolicyName: EKSCodeDeployAccess
           PolicyDocument:
             Version: '2012-10-17'
             Statement:
               - Effect: Allow
                 Action:
-                  - eks:*
-                  - ec2:*
+                  - eks:DescribeCluster
+                  - eks:DescribeNodegroup
+                  - eks:DescribeUpdate
+                  - eks:ListClusters
+                  - eks:ListNodegroups
+                  - iam:PassRole
                 Resource: '*'
 
   S3ArtifactsBucket:
@@ -96,6 +106,8 @@ Resources:
             Value: !Ref ECRRepositoryName
           - Name: EKS_CLUSTER_NAME
             Value: !Ref EKSClusterName
+          - Name: CODEDEPLOY_BUCKET
+            Value: !Ref S3ArtifactsBucket
       Source:
         Type: GITHUB
         Location: !Ref GitHubRepo
@@ -104,20 +116,25 @@ Resources:
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     Properties:
-      ApplicationName: introspect2-claims-app
-      ComputePlatform: Server
+      ApplicationName: claims-api-eks
+      ComputePlatform: EKS
 
   CodeDeployDeploymentGroup:
     Type: AWS::CodeDeploy::DeploymentGroup
     Properties:
       ApplicationName: !Ref CodeDeployApplication
-      DeploymentGroupName: introspect2-claims-deployment-group
+      DeploymentGroupName: claims-api-dg
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
-      DeploymentConfigName: CodeDeployDefault.AllAtOnce
-      Ec2TagFilters:
-        - Type: KEY_AND_VALUE
-          Key: Environment
-          Value: production
+      DeploymentConfigName: CodeDeployDefault.EKSCanaryLinear10PercentEvery5Minutes
+      EksClusterName: !Ref EKSClusterName
+      BlueGreenDeploymentConfiguration:
+        TerminateBlueInstancesOnDeploymentSuccess:
+          Action: TERMINATE
+          TerminationWaitTimeInMinutes: 5
+        DeploymentReadyOption:
+          ActionOnTimeout: CONTINUE_DEPLOYMENT
+        GreenFleetProvisioningOption:
+          Action: COPY_AUTO_SCALING_GROUP
 
 Outputs:
   ECRRepositoryURI:
