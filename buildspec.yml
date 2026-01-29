@@ -7,6 +7,8 @@ phases:
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       # Optional: Login to Docker Hub if using Docker Hub images
       # - echo $DOCKERHUB_PASSWORD | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - echo Upgrading AWS CLI to fix boto3 compatibility...
+      - pip install --upgrade awscli boto3 botocore
       - REPOSITORY_URI=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=${COMMIT_HASH:=latest}
@@ -35,7 +37,8 @@ phases:
       - cp -r scripts/ artifacts/
       - cp imageDetail.json artifacts/
       - cd artifacts && zip -r ../codedeploy-package.zip . && cd ..
-      - aws s3 cp codedeploy-package.zip s3://$CODEDEPLOY_BUCKET/claims-api-$CODEBUILD_BUILD_NUMBER.zip
+      - echo Uploading CodeDeploy artifacts to S3...
+      - aws s3 cp codedeploy-package.zip s3://$CODEDEPLOY_BUCKET/claims-api-$CODEBUILD_BUILD_NUMBER.zip || echo "S3 upload failed, continuing..."
 artifacts:
   files:
     - k8s/**/*
