@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Simple IAM Role for EKS Service Account to access DynamoDB'
+
+Resources:
+  ClaimsAPIServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub 'ClaimsAPI-EKS-ServiceRole-${AWS::StackName}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/C2121B48E0794EF820A5E141B57817F6'
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                'oidc.eks.us-east-1.amazonaws.com/id/C2121B48E0794EF820A5E141B57817F6:sub': 'system:serviceaccount:default:claims-api-sa'
+                'oidc.eks.us-east-1.amazonaws.com/id/C2121B48E0794EF820A5E141B57817F6:aud': 'sts.amazonaws.com'
+      Policies:
+        - PolicyName: DynamoDBAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                Resource: 
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/claims'
+                  - !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/claims/*'
+
+Outputs:
+  ServiceRoleArn:
+    Description: ARN of the service role
+    Value: !GetAtt ClaimsAPIServiceRole.Arn

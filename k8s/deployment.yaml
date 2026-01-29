@@ -15,6 +15,7 @@ spec:
       labels:
         app: claims-api
     spec:
+      serviceAccountName: claims-api-sa
       containers:
       - name: introspect2-claims-api
         image: 621262609834.dkr.ecr.us-east-1.amazonaws.com/introspect2-claims-api:latest

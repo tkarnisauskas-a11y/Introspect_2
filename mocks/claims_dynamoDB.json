@@ -1,0 +1,20 @@
+{
+  "id": {
+    "S": "CLM-2024-001"
+  },
+  "claimType": {
+    "S": "auto"
+  },
+  "dateReported": {
+    "S": "2024-01-15T10:30:00Z"
+  },
+  "estimatedAmount": {
+    "N": "5500"
+  },
+  "policyNumber": {
+    "S": "POL-123456"
+  },
+  "status": {
+    "S": "open"
+  }
+}

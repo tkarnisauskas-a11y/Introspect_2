@@ -33,7 +33,22 @@ Deploy the EKS cluster using existing VPC:
 aws cloudformation create-stack --stack-name introspect-2-cluster --template-body file://iac\eks-cluster.yaml --capabilities CAPABILITY_IAM
 ```
 
-### 4. Setup Network Load Balancer in EKS
+### 4. EKS Service Account IAM Role
+
+#### 1. Create the IAM OIDC Provider
+```cmd
+eksctl utils associate-iam-oidc-provider --cluster=introspect-2-cluster --region=us-east-1 --approve
+```
+
+#### 2. Update with IAM OIDC Provider
+Update iac\eks-irsa-simple.yaml with correct "Identity provider", created 
+
+#### 3. Run cloudformation to create Role
+```cmd
+aws cloudformation create-stack --stack-name claims-api-service-role --template-body file://iac\eks-irsa-simple.yaml --capabilities CAPABILITY_NAMED_IAM
+```
+
+### 5. Setup Network Load Balancer in EKS
 
 After EKS cluster is ready, deploy NLB service only (application will be deployed via CI/CD):
 
@@ -48,14 +63,14 @@ kubectl apply -f k8s\nlb-service.yaml
 kubectl get svc claims-api-nlb -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
-### 5. CI/CD Pipeline
+### 6. CI/CD Pipeline
 Deploy CodeBuild pipeline:
 
 ```cmd
 aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2.git ParameterKey=UsePublicRepo,ParameterValue=true --capabilities CAPABILITY_NAMED_IAM
 ```
 
-### 6. Deploy Application to EKS
+### 7. Deploy Application to EKS
 After CodeBuild completes, deploy to EKS:
 
 ```cmd
@@ -66,7 +81,7 @@ kubectl apply -f ./k8s/service.yaml
 kubectl rollout status deployment/claims-api
 ```
 
-### 7. API Gateway with VPC Link
+### 8. API Gateway with VPC Link
 Deploy API Gateway using the NLB ARN:
 
 ```cmd
