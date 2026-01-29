@@ -38,7 +38,7 @@ phases:
       - cp imageDetail.json artifacts/
       - cd artifacts && zip -r ../codedeploy-package.zip . && cd ..
       - echo Uploading CodeDeploy artifacts to S3...
-      - aws s3 cp codedeploy-package.zip s3://$CODEDEPLOY_BUCKET/claims-api-$CODEBUILD_BUILD_NUMBER.zip || echo "S3 upload failed, continuing..."
+      - aws s3 cp codedeploy-package.zip s3://$CODEDEPLOY_BUCKET/claims-api-$CODEBUILD_BUILD_ID.zip || echo "S3 upload failed, continuing..."
 artifacts:
   files:
     - k8s/**/*
