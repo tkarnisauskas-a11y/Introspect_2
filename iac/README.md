@@ -51,8 +51,14 @@ kubectl get svc claims-api-nlb -o jsonpath='{.status.loadBalancer.ingress[0].hos
 ### 5. CI/CD Pipeline
 Deploy CodeBuild and CodeDeploy for automated builds and deployments:
 
+**Option A - Complete CI/CD Pipeline (Recommended):**
 ```cmd
-aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2.git --capabilities CAPABILITY_IAM
+aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2.git ParameterKey=UsePublicRepo,ParameterValue=true --capabilities CAPABILITY_NAMED_IAM
+```
+
+**Option B - Standalone CodeDeploy only:**
+```cmd
+aws cloudformation create-stack --stack-name claims-api-codedeploy --template-body file://iac\codedeploy-eks.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=EKSClusterName,ParameterValue=introspect-2-cluster
 ```
 
 ### 6. API Gateway with VPC Link
@@ -73,15 +79,16 @@ aws cloudformation create-stack --stack-name claims-api-gateway --template-body 
 - Creates deployment artifacts
 
 **CodeDeploy**:
-- Uses PowerShell scripts for Windows compatibility
-- Deploys to EKS cluster
-- Blue/Green deployment strategy
-- Graceful application shutdown and startup
+- Deployed via CloudFormation templates
+- Uses Server platform (not native EKS support)
+- Custom deployment scripts for Kubernetes
+- AllAtOnce deployment strategy for simplicity
 
-**Deployment Scripts** (PowerShell):
-- `scripts/install_dependencies.ps1` - Installs kubectl, configures EKS
-- `scripts/start_server.ps1` - Deploys application to Kubernetes
-- `scripts/stop_server.ps1` - Graceful application shutdown
+**CloudFormation Templates**:
+- `iac/codebuild-codedeploy.yaml` - Complete CI/CD pipeline with CodeBuild + CodeDeploy
+- `iac/codedeploy-eks.yaml` - Standalone CodeDeploy for manual deployments
+- Uses Server platform with custom scripts for Kubernetes deployment
+- Auto-generated resource names to avoid conflicts
 
 ## Check Deployment Status
 

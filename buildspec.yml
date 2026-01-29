@@ -28,9 +28,14 @@ phases:
       - echo Creating deployment artifacts...
       - sed -i "s|claims-api:latest|$REPOSITORY_URI:$IMAGE_TAG|g" k8s/deployment.yaml
       - printf '{"imageUri":"%s","imageTag":"%s"}' $REPOSITORY_URI:$IMAGE_TAG $IMAGE_TAG > imageDetail.json
-      - echo Building CodeDeploy artifacts...
-      - chmod +x scripts/build-codedeploy-artifacts.sh
-      - ./scripts/build-codedeploy-artifacts.sh
+      - echo Packaging CodeDeploy artifacts...
+      - mkdir -p artifacts
+      - cp appspec.yml artifacts/
+      - cp -r k8s/ artifacts/
+      - cp -r scripts/ artifacts/
+      - cp imageDetail.json artifacts/
+      - cd artifacts && zip -r ../codedeploy-package.zip . && cd ..
+      - aws s3 cp codedeploy-package.zip s3://$CODEDEPLOY_BUCKET/claims-api-$CODEBUILD_BUILD_NUMBER.zip
 artifacts:
   files:
     - k8s/**/*

@@ -17,7 +17,6 @@ Resources:
   CodeDeployEKSServiceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub 'CodeDeployServiceRoleForEKS-${AWS::StackName}'
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -26,15 +25,26 @@ Resources:
               Service: codedeploy.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForEKS
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+      Policies:
+        - PolicyName: EKSAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - eks:DescribeCluster
+                  - eks:DescribeNodegroup
+                  - eks:ListClusters
+                  - eks:ListNodegroups
+                Resource: '*'
       Path: /
 
   # Step 2: CodeDeploy Application
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     Properties:
-      ApplicationName: claims-api-eks
-      ComputePlatform: EKS
+      ComputePlatform: Server
 
   # Step 3: CodeDeploy Deployment Group
   CodeDeployDeploymentGroup:
@@ -43,22 +53,16 @@ Resources:
       ApplicationName: !Ref CodeDeployApplication
       DeploymentGroupName: claims-api-dg
       ServiceRoleArn: !GetAtt CodeDeployEKSServiceRole.Arn
-      DeploymentConfigName: CodeDeployDefault.EKSCanaryLinear10PercentEvery5Minutes
-      EksClusterName: !Ref EKSClusterName
-      BlueGreenDeploymentConfiguration:
-        TerminateBlueInstancesOnDeploymentSuccess:
-          Action: TERMINATE
-          TerminationWaitTimeInMinutes: 5
-        DeploymentReadyOption:
-          ActionOnTimeout: CONTINUE_DEPLOYMENT
-        GreenFleetProvisioningOption:
-          Action: COPY_AUTO_SCALING_GROUP
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Ec2TagFilters:
+        - Type: KEY_AND_VALUE
+          Key: Environment
+          Value: production
 
   # Step 4: S3 Bucket for CodeDeploy Artifacts
   CodeDeployArtifactsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'codedeploy-eks-artifacts-${AWS::AccountId}-${AWS::Region}'
       VersioningConfiguration:
         Status: Enabled
       PublicAccessBlockConfiguration:

@@ -5,12 +5,20 @@ Parameters:
   GitHubRepo:
     Type: String
     Description: GitHub repository URL
+  UsePublicRepo:
+    Type: String
+    Default: 'true'
+    AllowedValues: ['true', 'false']
+    Description: Set to true for public repositories, false for private
   EKSClusterName:
     Type: String
     Default: introspect-2-cluster
   ECRRepositoryName:
     Type: String
     Default: introspect2-claims-api
+
+Conditions:
+  IsPublicRepo: !Equals [!Ref UsePublicRepo, 'true']
 
 Resources:
   ECRRepository:
@@ -52,7 +60,6 @@ Resources:
   CodeDeployServiceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: CodeDeployServiceRoleForEKS
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -61,7 +68,7 @@ Resources:
               Service: codedeploy.amazonaws.com
             Action: sts:AssumeRole
       ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRoleForEKS
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
       Policies:
         - PolicyName: EKSCodeDeployAccess
           PolicyDocument:
@@ -80,7 +87,6 @@ Resources:
   S3ArtifactsBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub 'introspect2-artifacts-${AWS::AccountId}-${AWS::Region}'
       VersioningConfiguration:
         Status: Enabled
 
@@ -112,12 +118,15 @@ Resources:
         Type: GITHUB
         Location: !Ref GitHubRepo
         BuildSpec: buildspec.yml
+        Auth: !If
+          - IsPublicRepo
+          - !Ref 'AWS::NoValue'
+          - Type: OAUTH
 
   CodeDeployApplication:
     Type: AWS::CodeDeploy::Application
     Properties:
-      ApplicationName: claims-api-eks
-      ComputePlatform: EKS
+      ComputePlatform: Server
 
   CodeDeployDeploymentGroup:
     Type: AWS::CodeDeploy::DeploymentGroup
@@ -125,16 +134,11 @@ Resources:
       ApplicationName: !Ref CodeDeployApplication
       DeploymentGroupName: claims-api-dg
       ServiceRoleArn: !GetAtt CodeDeployServiceRole.Arn
-      DeploymentConfigName: CodeDeployDefault.EKSCanaryLinear10PercentEvery5Minutes
-      EksClusterName: !Ref EKSClusterName
-      BlueGreenDeploymentConfiguration:
-        TerminateBlueInstancesOnDeploymentSuccess:
-          Action: TERMINATE
-          TerminationWaitTimeInMinutes: 5
-        DeploymentReadyOption:
-          ActionOnTimeout: CONTINUE_DEPLOYMENT
-        GreenFleetProvisioningOption:
-          Action: COPY_AUTO_SCALING_GROUP
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      Ec2TagFilters:
+        - Type: KEY_AND_VALUE
+          Key: Environment
+          Value: production
 
 Outputs:
   ECRRepositoryURI:
