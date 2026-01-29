@@ -49,26 +49,38 @@ kubectl get svc claims-api-nlb -o jsonpath='{.status.loadBalancer.ingress[0].hos
 ```
 
 ### 5. CI/CD Pipeline
-Deploy CodeBuild and CodeDeploy for automated builds and deployments:
+Deploy CodeBuild pipeline:
 
-**Option A - Complete CI/CD Pipeline (Recommended):**
 ```cmd
 aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2.git ParameterKey=UsePublicRepo,ParameterValue=true --capabilities CAPABILITY_NAMED_IAM
 ```
 
-**Option B - Standalone CodeDeploy only:**
+### 6. Deploy Application to EKS
+After CodeBuild completes, deploy to EKS:
+
 ```cmd
-aws cloudformation create-stack --stack-name claims-api-codedeploy --template-body file://iac\codedeploy-eks.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=EKSClusterName,ParameterValue=introspect-2-cluster
+kubectl apply -f ./k8s/deployment.yaml
+kubectl apply -f ./k8s/service.yaml
+
+# Check status
+kubectl rollout status deployment/claims-api
 ```
 
-### 6. API Gateway with VPC Link
+### 7. API Gateway with VPC Link
 Deploy API Gateway using the NLB ARN:
 
 ```cmd
 aws cloudformation create-stack --stack-name claims-api-gateway --template-body file://iac\api-gateway.yaml --parameters ParameterKey=LoadBalancerArn,ParameterValue=<NLB_ARN>
 ```
 
-**Note**: Application deployment is handled automatically by the CI/CD pipeline when code is pushed to the GitHub repository.
+**Note**: Application deployment uses direct Kubernetes deployment after CodeBuild completes. Use the `scripts/deploy-to-eks.sh` script for automated deployment.
+
+## Deployment Workflow
+
+1. **CodeBuild** builds Docker image and pushes to ECR
+2. **CodeBuild** updates Kubernetes manifests with new image URI
+3. **Manual deployment** applies updated manifests to EKS cluster
+4. **Kubernetes** handles rolling deployment
 
 ## CI/CD Pipeline Components
 
@@ -79,15 +91,15 @@ aws cloudformation create-stack --stack-name claims-api-gateway --template-body 
 - Creates deployment artifacts
 
 **CodeDeploy**:
-- Deployed via CloudFormation templates
-- Uses Server platform (not native EKS support)
-- Custom deployment scripts for Kubernetes
-- AllAtOnce deployment strategy for simplicity
+- ~~Deployed via CloudFormation templates~~ (Not used for EKS)
+- Direct Kubernetes deployment using kubectl
+- Rolling deployment strategy
+- Updated manifests from CodeBuild artifacts
 
 **CloudFormation Templates**:
-- `iac/codebuild-codedeploy.yaml` - Complete CI/CD pipeline with CodeBuild + CodeDeploy
-- `iac/codedeploy-eks.yaml` - Standalone CodeDeploy for manual deployments
-- Uses Server platform with custom scripts for Kubernetes deployment
+- `iac/codebuild-codedeploy.yaml` - CodeBuild pipeline for Docker image builds
+- `iac/codedeploy-eks.yaml` - ~~Standalone CodeDeploy~~ (Not needed for EKS)
+- `scripts/deploy-to-eks.sh` - Direct EKS deployment script
 - Auto-generated resource names to avoid conflicts
 
 ## Check Deployment Status

@@ -22,11 +22,13 @@ phases:
       - echo Building the Docker image...
       - docker build -t $IMAGE_REPO_NAME:$IMAGE_TAG .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG $REPOSITORY_URI:latest
   post_build:
     commands:
       - echo Build completed on `date`
       - echo Pushing the Docker image...
       - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - docker push $REPOSITORY_URI:latest
       - echo Creating deployment artifacts...
       - sed -i "s|claims-api:latest|$REPOSITORY_URI:$IMAGE_TAG|g" k8s/deployment.yaml
       - printf '{"imageUri":"%s","imageTag":"%s"}' $REPOSITORY_URI:$IMAGE_TAG $IMAGE_TAG > imageDetail.json
@@ -37,8 +39,7 @@ phases:
       - cp -r scripts/ artifacts/
       - cp imageDetail.json artifacts/
       - cd artifacts && zip -r ../codedeploy-package.zip . && cd ..
-      - echo Uploading CodeDeploy artifacts to S3...
-      - aws s3 cp codedeploy-package.zip s3://$CODEDEPLOY_BUCKET/claims-api-$CODEBUILD_BUILD_ID.zip || echo "S3 upload failed, continuing..."
+      - echo CodeDeploy package created successfully
 artifacts:
   files:
     - k8s/**/*

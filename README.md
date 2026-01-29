@@ -83,12 +83,4 @@ Returns claim information for the specified ID.
 
 ## AWS Deployment
 
-### Deploy CodeDeploy for EKS:
-```bash
-aws cloudformation deploy --template-file iac/codedeploy-eks.yaml --stack-name claims-api-codedeploy --capabilities CAPABILITY_NAMED_IAM --parameter-overrides EKSClusterName=introspect-2-cluster
-```
-
-### Deploy full CI/CD pipeline:
-```bash
-aws cloudformation deploy --template-file iac/codebuild-codedeploy.yaml --stack-name claims-api-pipeline --capabilities CAPABILITY_NAMED_IAM --parameter-overrides EKSClusterName=introspect-2-cluster
-```
+See [iac/README.md](iac/README.md) for complete AWS infrastructure deployment instructions.

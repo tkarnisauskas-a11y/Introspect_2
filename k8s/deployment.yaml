@@ -16,8 +16,8 @@ spec:
         app: claims-api
     spec:
       containers:
-      - name: claims-api
-        image: claims-api:latest
+      - name: introspect2-claims-api
+        image: 621262609834.dkr.ecr.us-east-1.amazonaws.com/introspect2-claims-api:latest
         ports:
         - containerPort: 5000
         env:
