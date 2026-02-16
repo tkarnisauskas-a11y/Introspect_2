@@ -1,0 +1,26 @@
+aws iam create-policy \
+  --policy-name ACKIAMPolicy \
+  --policy-document file://iac/policy/ack-trust-policy.json
+
+eksctl create iamserviceaccount \
+  --attach-policy-arn=arn:aws:iam::${AGW_ACCOUNT_ID}:policy/ACKIAMPolicy \
+  --cluster=$AGW_EKS_CLUSTER_NAME \
+  --namespace=kube-system \
+  --name=ack-apigatewayv2-controller \
+  --override-existing-serviceaccounts \
+  --region $AGW_AWS_REGION \
+  --approve
+
+export SERVICE=apigatewayv2
+export RELEASE_VERSION=$(curl -sL https://api.github.com/repos/aws-controllers-k8s/${SERVICE}-controller/releases/latest | jq -r '.tag_name | ltrimstr("v")')
+
+aws ecr-public get-login-password --region us-east-1 | \
+  helm registry login --username AWS --password-stdin public.ecr.aws
+
+helm install -n kube-system \
+  ack-$SERVICE-controller \
+  oci://public.ecr.aws/aws-controllers-k8s/$SERVICE-chart \
+  --version=$RELEASE_VERSION \
+  --set serviceAccount.create=false \
+  --set=aws.region=$AGW_AWS_REGION
+ 

@@ -5,8 +5,10 @@ A Flask-based REST API for managing insurance claims with DynamoDB integration.
 ## Features
 
 - GET /claims/{id} - Retrieve claim information
+- POST /claims/{id}/summarize - Generate AI summary of claim notes
 - Local development with mock data
 - AWS DynamoDB integration for production
+- AWS Bedrock integration for AI summaries
 - Docker support
 
 ## Local Development
@@ -57,6 +59,16 @@ docker run -p 5000:5000 claims-api
 
 ## API Endpoints
 
+### GET /health
+Health check endpoint.
+
+**Response:**
+```json
+{
+  "status": "healthy"
+}
+```
+
 ### GET /claims/{id}
 Returns claim information for the specified ID.
 
@@ -72,14 +84,30 @@ Returns claim information for the specified ID.
 }
 ```
 
+### POST /claims/{id}/summarize
+Generates AI-powered summary of claim notes using AWS Bedrock.
+
+**Response:**
+```json
+{
+  "claimId": "CLM-2024-001",
+  "overallSummary": "Summary of all claim activities...",
+  "customerSummary": "Customer-facing summary...",
+  "adjusterSummary": "Internal adjuster summary...",
+  "nextStep": "Recommended next action..."
+}
+```
+
 ## Configuration
 
-- `ENVIRONMENT=local` - Uses mock data from mocks/claims.json
-- `ENVIRONMENT=production` - Uses AWS DynamoDB
-- `AWS_REGION` - AWS region for DynamoDB
-- `DYNAMODB_TABLE_NAME` - DynamoDB table name
-- `AWS_ACCESS_KEY_ID` - AWS access key
-- `AWS_SECRET_ACCESS_KEY` - AWS secret key
+- `ENVIRONMENT=local` - Uses mock data from mocks/claims.json and mocks/notes.json
+- `ENVIRONMENT=production` - Uses AWS DynamoDB, S3, and Bedrock
+- `AWS_REGION` - AWS region (default: us-east-1)
+- `DYNAMODB_TABLE_NAME` - DynamoDB table name for claims
+- `S3_BUCKET_NAME` - S3 bucket name for claim notes
+- `BEDROCK_MODEL_ID` - Bedrock model ID for AI summaries (default: anthropic.claude-3-sonnet-20240229-v1:0)
+- `AWS_ACCESS_KEY_ID` - AWS access key (not needed with IAM roles)
+- `AWS_SECRET_ACCESS_KEY` - AWS secret key (not needed with IAM roles)
 
 ## AWS Deployment
 
