@@ -66,25 +66,26 @@ Respond in JSON format:
                 "nextStep": "Mock recommended next step"
             }
         
-        if 'claude' in self.config.bedrock_model_id:
-            body = json.dumps({
-                "messages": [{"role": "user", "content": prompt}],                
-                "anthropic_version": "bedrock-2023-05-31"
-            })
-        else:
-            body = json.dumps({
-                "messages": [{"role": "user", "content": [{"text": prompt}]}]                
-            })
+        logger.info(f"Invoking Bedrock model: {self.config.bedrock_model_id}")
+        response = self.bedrock.converse(
+            modelId=self.config.bedrock_model_id,
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={"maxTokens": 1000, "temperature": 0.7}
+        )
         
-        response = self.bedrock.invoke_model(modelId=self.config.bedrock_model_id, body=body)
-        result = json.loads(response['body'].read())
+        logger.info(f"Bedrock response: {json.dumps(response)[:500]}")
+        content = response['output']['message']['content'][0]['text']
+        logger.info(f"Extracted content: {content[:200]}")
         
-        if 'claude' in self.config.bedrock_model_id:
-            content = result['content'][0]['text']
-        else:
-            content = result['output']['message']['content'][0]['text']
-        
-        return json.loads(content)
+        try:
+            return json.loads(content)
+        except json.JSONDecodeError:
+            return {
+                "overallSummary": content,
+                "customerSummary": "See overall summary",
+                "adjusterSummary": "See overall summary",
+                "nextStep": "Review claim details"
+            }
     
     def summarize_claim(self, claim_id):
         notes = self._get_notes_from_s3(claim_id)
