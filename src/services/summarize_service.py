@@ -1,6 +1,9 @@
 import json
 import boto3
+import logging
 from botocore.exceptions import ClientError
+
+logger = logging.getLogger(__name__)
 
 class SummarizeService:
     def __init__(self, config):
@@ -10,21 +13,34 @@ class SummarizeService:
             self.bedrock = boto3.client('bedrock-runtime', region_name=config.aws_region)
     
     def _get_notes_from_s3(self, claim_id):
+        logger.info(f"Getting notes for claim {claim_id}, environment: {self.config.environment}")
+        
         if self.config.is_local():
             import os
             mock_file = os.path.join(os.path.dirname(__file__), '..', '..', 'mocks', 'notes.json')
+            logger.info(f"Reading from mock file: {mock_file}")
             with open(mock_file, 'r') as f:
                 data = json.load(f)
                 for note in data['notes']:
                     if note['claimId'] == claim_id:
+                        logger.info(f"Found {len(note['entries'])} notes for claim {claim_id}")
                         return note['entries']
+                logger.warning(f"No notes found for claim {claim_id} in mock data")
                 return []
         
         try:
-            response = self.s3.get_object(Bucket=self.config.s3_bucket_name, Key=f"{claim_id}/notes.json")
+            key = "notes.json"
+            logger.info(f"Reading from S3: bucket={self.config.s3_bucket_name}, key={key}")
+            response = self.s3.get_object(Bucket=self.config.s3_bucket_name, Key=key)
             data = json.loads(response['Body'].read())
-            return data.get('entries', [])
-        except ClientError:
+            for note in data['notes']:
+                if note['claimId'] == claim_id:
+                    logger.info(f"Found {len(note['entries'])} notes for claim {claim_id}")
+                    return note['entries']
+            logger.warning(f"No notes found for claim {claim_id} in S3")
+            return []
+        except ClientError as e:
+            logger.error(f"S3 error for claim {claim_id}: {e}")
             return []
     
     def _invoke_bedrock(self, notes):
