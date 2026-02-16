@@ -66,15 +66,26 @@ Respond in JSON format:
                 "nextStep": "Mock recommended next step"
             }
         
-        body = json.dumps({
-            "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 1000,
-            "anthropic_version": "bedrock-2023-05-31"
-        })
+        if 'claude' in self.config.bedrock_model_id:
+            body = json.dumps({
+                "messages": [{"role": "user", "content": prompt}],
+                "max_tokens": 1000,
+                "anthropic_version": "bedrock-2023-05-31"
+            })
+        else:
+            body = json.dumps({
+                "messages": [{"role": "user", "content": [{"text": prompt}]}],
+                "inferenceConfig": {"maxTokens": 1000}
+            })
         
         response = self.bedrock.invoke_model(modelId=self.config.bedrock_model_id, body=body)
         result = json.loads(response['body'].read())
-        content = result['content'][0]['text']
+        
+        if 'claude' in self.config.bedrock_model_id:
+            content = result['content'][0]['text']
+        else:
+            content = result['output']['message']['content'][0]['text']
+        
         return json.loads(content)
     
     def summarize_claim(self, claim_id):
