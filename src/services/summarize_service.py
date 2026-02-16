@@ -1,0 +1,68 @@
+import json
+import boto3
+from botocore.exceptions import ClientError
+
+class SummarizeService:
+    def __init__(self, config):
+        self.config = config
+        if not config.is_local():
+            self.s3 = boto3.client('s3', region_name=config.aws_region)
+            self.bedrock = boto3.client('bedrock-runtime', region_name=config.aws_region)
+    
+    def _get_notes_from_s3(self, claim_id):
+        if self.config.is_local():
+            import os
+            mock_file = os.path.join(os.path.dirname(__file__), '..', '..', 'mocks', 'notes.json')
+            with open(mock_file, 'r') as f:
+                data = json.load(f)
+                for note in data['notes']:
+                    if note['claimId'] == claim_id:
+                        return note['entries']
+                return []
+        
+        try:
+            response = self.s3.get_object(Bucket=self.config.s3_bucket_name, Key=f"{claim_id}/notes.json")
+            data = json.loads(response['Body'].read())
+            return data.get('entries', [])
+        except ClientError:
+            return []
+    
+    def _invoke_bedrock(self, notes):
+        notes_text = "\n\n".join([f"[{n['timestamp']}] {n['author']} ({n['type']}): {n['content']}" for n in notes])
+        
+        prompt = f"""Analyze these insurance claim notes and provide:
+1. Overall summary
+2. Customer-facing summary
+3. Adjuster-focused summary
+4. Recommended next step
+
+Notes:
+{notes_text}
+
+Respond in JSON format:
+{{"overallSummary": "...", "customerSummary": "...", "adjusterSummary": "...", "nextStep": "..."}}"""
+        
+        if self.config.is_local():
+            return {
+                "overallSummary": "Mock summary of claim notes",
+                "customerSummary": "Mock customer-facing summary",
+                "adjusterSummary": "Mock adjuster-focused summary",
+                "nextStep": "Mock recommended next step"
+            }
+        
+        body = json.dumps({
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 1000,
+            "messages": [{"role": "user", "content": prompt}]
+        })
+        
+        response = self.bedrock.invoke_model(modelId=self.config.bedrock_model_id, body=body)
+        result = json.loads(response['body'].read())
+        content = result['content'][0]['text']
+        return json.loads(content)
+    
+    def summarize_claim(self, claim_id):
+        notes = self._get_notes_from_s3(claim_id)
+        if not notes:
+            raise Exception("No notes found for claim")
+        return self._invoke_bedrock(notes)
