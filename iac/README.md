@@ -49,10 +49,31 @@ Update `iac\eks-irsa-simple.yaml` with the OIDC Provider ID, then create the rol
 aws cloudformation create-stack --stack-name claims-api-service-role --template-body file://iac\eks-irsa-simple.yaml --capabilities CAPABILITY_NAMED_IAM
 ```
 
-### 5. CI/CD Pipeline
+### 5. CI/CD Pipeline with CodeBuild
 ```cmd
-aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://iac\codebuild-codedeploy.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/YOUR_REPO/Introspect_2.git ParameterKey=UsePublicRepo,ParameterValue=true --capabilities CAPABILITY_NAMED_IAM
+aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://pipelines\codebuild.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2 ParameterKey=UsePublicRepo,ParameterValue=true --capabilities CAPABILITY_NAMED_IAM
 ```
+
+### 5a. Automated CI/CD Pipeline (Optional)
+
+For fully automated deployments, create CodePipeline:
+
+**Prerequisites:**
+- Store GitHub token in AWS Secrets Manager:
+```cmd
+aws secretsmanager create-secret --name github-token --secret-string "{\"token\":\"YOUR_GITHUB_TOKEN\"}"
+```
+
+**Deploy Pipeline:**
+```cmd
+aws cloudformation create-stack --stack-name claims-pipeline --template-body file://pipelines\codepipeline.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2 ParameterKey=GitHubBranch,ParameterValue=main --capabilities CAPABILITY_NAMED_IAM
+```
+
+This pipeline will:
+1. Monitor GitHub repository for changes
+2. Trigger CodeBuild to build and push Docker image to ECR
+3. Automatically deploy the new image to EKS
+4. Perform rolling update with zero downtime
 
 ### 6. Deploy Application to EKS
 
@@ -61,18 +82,21 @@ Configure kubectl:
 aws eks update-kubeconfig --region us-east-1 --name introspect-2-cluster
 ```
 
-Deploy application:
+**Initial deployment** (one-time setup):
 ```cmd
 kubectl apply -f k8s\service-account.yaml
 kubectl apply -f k8s\deployment.yaml
 kubectl apply -f k8s\nlb-service.yaml
 ```
 
-Check deployment status:
+Check deployment:
 ```cmd
 kubectl rollout status deployment/claims-api -n default
+kubectl get pods -n default -l app=claims-api
 kubectl get svc claims-api-nlb -n default
 ```
+
+**Note:** If you set up CodePipeline in step 5a, subsequent deployments will be automatic on git push.
 
 ### 7. AWS Load Balancer Controller
 
@@ -131,6 +155,7 @@ helm install -n kube-system ack-$SERVICE-controller \
 - **S3**: Claim notes storage
 - **ECR**: Docker image repository
 - **CodeBuild**: CI/CD pipeline for building and pushing images
+- **CodePipeline**: Automated deployment pipeline (optional)
 - **NLB**: Network Load Balancer for external access
 
 ## Check Deployment Status
@@ -141,6 +166,7 @@ aws cloudformation describe-stacks --stack-name claims-storage
 aws cloudformation describe-stacks --stack-name introspect-2-cluster
 aws cloudformation describe-stacks --stack-name claims-api-service-role
 aws cloudformation describe-stacks --stack-name introspect2-cicd
+aws cloudformation describe-stacks --stack-name claims-pipeline
 ```
 
 ## Clean Up
@@ -151,6 +177,7 @@ Delete resources in reverse order:
 kubectl delete -f k8s\nlb-service.yaml
 kubectl delete -f k8s\deployment.yaml
 kubectl delete -f k8s\service-account.yaml
+aws cloudformation delete-stack --stack-name claims-pipeline
 aws cloudformation delete-stack --stack-name introspect2-cicd
 aws cloudformation delete-stack --stack-name claims-api-service-role
 aws cloudformation delete-stack --stack-name introspect-2-cluster
