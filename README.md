@@ -4,12 +4,15 @@ A Flask-based REST API for managing insurance claims with DynamoDB integration.
 
 ## Features
 
-- GET /claims/{id} - Retrieve claim information
-- POST /claims/{id}/summarize - Generate AI summary of claim notes
 - Local development with mock data
 - AWS DynamoDB integration for production
 - AWS Bedrock integration for AI summaries
 - Docker support
+
+## API Endpoints
+
+- GET /claims/{id} - Retrieve claim information
+- POST /claims/{id}/summarize - Generate AI summary of claim notes
 
 ## Local Development
 
@@ -57,7 +60,7 @@ docker build -t claims-api .
 docker run -p 5000:5000 claims-api
 ```
 
-## API Endpoints
+## API Documentation
 
 ### GET /health
 Health check endpoint.

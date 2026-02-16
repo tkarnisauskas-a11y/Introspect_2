@@ -49,12 +49,13 @@ Update `iac\eks-irsa-simple.yaml` with the OIDC Provider ID, then create the rol
 aws cloudformation create-stack --stack-name claims-api-service-role --template-body file://iac\eks-irsa-simple.yaml --capabilities CAPABILITY_NAMED_IAM
 ```
 
-### 5. CI/CD Pipeline with CodeBuild
+### 5 CI/CD
+#### Pipeline with CodeBuild
 ```cmd
 aws cloudformation create-stack --stack-name introspect2-cicd --template-body file://pipelines\codebuild.yaml --parameters ParameterKey=GitHubRepo,ParameterValue=https://github.com/tkarnisauskas-a11y/Introspect_2 ParameterKey=UsePublicRepo,ParameterValue=true --capabilities CAPABILITY_NAMED_IAM
 ```
 
-### 5a. Automated CI/CD Pipeline (Optional)
+#### Automated CI/CD Pipeline
 
 For fully automated deployments, create CodePipeline:
 
