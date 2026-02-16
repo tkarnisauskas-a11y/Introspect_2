@@ -68,14 +68,12 @@ Respond in JSON format:
         
         if 'claude' in self.config.bedrock_model_id:
             body = json.dumps({
-                "messages": [{"role": "user", "content": prompt}],
-                "max_tokens": 1000,
+                "messages": [{"role": "user", "content": prompt}],                
                 "anthropic_version": "bedrock-2023-05-31"
             })
         else:
             body = json.dumps({
-                "messages": [{"role": "user", "content": [{"text": prompt}]}],
-                "inferenceConfig": {"maxTokens": 1000}
+                "messages": [{"role": "user", "content": [{"text": prompt}]}]                
             })
         
         response = self.bedrock.invoke_model(modelId=self.config.bedrock_model_id, body=body)
