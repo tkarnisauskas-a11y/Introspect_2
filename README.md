@@ -2,6 +2,10 @@
 
 A Flask-based REST API for managing insurance claims with DynamoDB integration.
 
+## Architecture
+
+See the [architecture diagram](observability/architecture_diagram.jpg) for a visual overview of the system components and their interactions.
+
 ## Features
 
 - Local development with mock data
