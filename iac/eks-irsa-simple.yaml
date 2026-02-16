@@ -11,12 +11,12 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Federated: !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/C2121B48E0794EF820A5E141B57817F6'
+              Federated: !Sub 'arn:aws:iam::${AWS::AccountId}:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/606AEA60C4C3521AC4A53BF38C41AE49'
             Action: sts:AssumeRoleWithWebIdentity
             Condition:
               StringEquals:
-                'oidc.eks.us-east-1.amazonaws.com/id/C2121B48E0794EF820A5E141B57817F6:sub': 'system:serviceaccount:default:claims-api-sa'
-                'oidc.eks.us-east-1.amazonaws.com/id/C2121B48E0794EF820A5E141B57817F6:aud': 'sts.amazonaws.com'
+                'oidc.eks.us-east-1.amazonaws.com/id/606AEA60C4C3521AC4A53BF38C41AE49:sub': 'system:serviceaccount:default:claims-api-sa'
+                'oidc.eks.us-east-1.amazonaws.com/id/606AEA60C4C3521AC4A53BF38C41AE49:aud': 'sts.amazonaws.com'
       Policies:
         - PolicyName: DynamoDBAccess
           PolicyDocument:

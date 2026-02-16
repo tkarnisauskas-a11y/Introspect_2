@@ -74,6 +74,7 @@ aws cloudformation create-stack --stack-name introspect2-cicd --template-body fi
 After CodeBuild completes, deploy to EKS:
 
 ```cmd
+kubectl apply -f k8s/service-account.yaml
 kubectl apply -f ./k8s/deployment.yaml
 kubectl apply -f ./k8s/service.yaml
 
