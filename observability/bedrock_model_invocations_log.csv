@@ -1,0 +1,42 @@
+timestamp,message
+1771252103517,Permissions are correctly set for Amazon Bedrock logs.
+1771252129000,"{""timestamp"":""2026-02-16T14:28:49Z"",""accountId"":""621262609834"",""region"":""us-east-1"",""requestId"":""ca53ba0e-905f-4348-86ea-a62269f21c76"",""operation"":""Converse"",""modelId"":""amazon.nova-pro-v1:0"",""identity"":{""arn"":""arn:aws:sts::621262609834:assumed-role/ClaimsAPI-EKS-ServiceRole-claims-api-service-role/botocore-session-1771247409""},""input"":{""inputContentType"":""application/json"",""inputBodyJson"":{""messages"":[{""role"":""user"",""content"":[{""text"":""Analyze these insurance claim notes and provide:
+1. Overall summary
+2. Customer-facing summary
+3. Adjuster-focused summary
+4. Recommended next step
+
+Notes:
+[2024-01-15T10:30:00Z] John Smith (initial_report): Customer reported rear-end collision at intersection of Main St and Oak Ave. Vehicle sustained damage to rear bumper and trunk. Customer was not injured. Other driver admitted fault at scene.
+
+[2024-01-16T14:20:00Z] Sarah Johnson (adjuster_note): Inspected vehicle at repair shop. Damage consistent with reported incident. Estimate from shop is $5,200. Recommend approval for repairs.
+
+Respond in JSON format:
+{\""overallSummary\"": \""...\"", \""customerSummary\"": \""...\"", \""adjusterSummary\"": \""...\"", \""nextStep\"": \""...\""}""}]}],""inferenceConfig"":{""maxTokens"":1000,""temperature"":0.7}},""inputTokenCount"":192},""output"":{""outputContentType"":""application/json"",""outputBodyJson"":{""output"":{""message"":{""role"":""assistant"",""content"":[{""text"":""```json
+{
+  \""overallSummary\"": \""A customer, John Smith, reported a rear-end collision at the intersection of Main St and Oak Ave. The vehicle sustained damage to the rear bumper and trunk, with an estimated repair cost of $5,200. The other driver admitted fault, and the adjuster, Sarah Johnson, has recommended approval for the repairs.\"",
+  \""customerSummary\"": \""Your recent report of a rear-end collision at the intersection of Main St and Oak Ave has been reviewed. Your vehicle sustained damage to the rear bumper and trunk. We are pleased to inform you that the other driver has admitted fault. The estimated cost for repairs is $5,200, and we recommend proceeding with the repairs. You will hear from us soon with further details.\"",
+  \""adjusterSummary\"": \""John Smith reported a rear-end collision with damage to the rear bumper and trunk. The other driver admitted fault. The vehicle was inspected at the repair shop, and the damage is consistent with the reported incident. The repair estimate is $5,200, and it is recommended to approve the repairs.\"",
+  \""nextStep\"": \""Approve the repair estimate of $5,200 and coordinate with the repair shop to proceed with the necessary repairs. Notify the customer of the approval and provide them with any additional information or instructions needed.\""
+}
+```""}]}},""stopReason"":""end_turn"",""metrics"":{""latencyMs"":1902},""usage"":{""inputTokens"":192,""outputTokens"":279,""totalTokens"":471}},""outputTokenCount"":279},""schemaType"":""ModelInvocationLog"",""schemaVersion"":""1.0""}"
+1771252165000,"{""timestamp"":""2026-02-16T14:29:25Z"",""accountId"":""621262609834"",""region"":""us-east-1"",""requestId"":""09b67cc7-ee82-4393-a1bc-698f65b4590c"",""operation"":""Converse"",""modelId"":""amazon.nova-pro-v1:0"",""identity"":{""arn"":""arn:aws:sts::621262609834:assumed-role/ClaimsAPI-EKS-ServiceRole-claims-api-service-role/botocore-session-1771247389""},""input"":{""inputContentType"":""application/json"",""inputBodyJson"":{""messages"":[{""role"":""user"",""content"":[{""text"":""Analyze these insurance claim notes and provide:
+1. Overall summary
+2. Customer-facing summary
+3. Adjuster-focused summary
+4. Recommended next step
+
+Notes:
+[2024-01-15T10:30:00Z] John Smith (initial_report): Customer reported rear-end collision at intersection of Main St and Oak Ave. Vehicle sustained damage to rear bumper and trunk. Customer was not injured. Other driver admitted fault at scene.
+
+[2024-01-16T14:20:00Z] Sarah Johnson (adjuster_note): Inspected vehicle at repair shop. Damage consistent with reported incident. Estimate from shop is $5,200. Recommend approval for repairs.
+
+Respond in JSON format:
+{\""overallSummary\"": \""...\"", \""customerSummary\"": \""...\"", \""adjusterSummary\"": \""...\"", \""nextStep\"": \""...\""}""}]}],""inferenceConfig"":{""maxTokens"":1000,""temperature"":0.7}},""inputTokenCount"":192},""output"":{""outputContentType"":""application/json"",""outputBodyJson"":{""output"":{""message"":{""role"":""assistant"",""content"":[{""text"":""```json
+{
+  \""overallSummary\"": \""A customer, John Smith, reported a rear-end collision on Main St and Oak Ave, resulting in damage to the rear bumper and trunk of his vehicle. The other driver admitted fault. An adjuster, Sarah Johnson, inspected the vehicle and confirmed the damage, with an estimate of $5,200 for repairs. Approval for repairs is recommended.\"",
+  \""customerSummary\"": \""Your vehicle was involved in a rear-end collision at the intersection of Main St and Oak Ave. The other driver admitted fault. We have inspected the damage and provided an estimate for repairs. We recommend approving the repair costs of $5,200.\"",
+  \""adjusterSummary\"": \""John Smith reported a rear-end collision with admitted fault from the other driver. The vehicle was inspected and the damage to the rear bumper and trunk is consistent with the reported incident. The repair estimate is $5,200, and approval for repairs is recommended.\"",
+  \""nextStep\"": \""Proceed with approving the repair costs of $5,200 and coordinate with the repair shop to begin the necessary repairs.\""
+}
+```""}]}},""stopReason"":""end_turn"",""metrics"":{""latencyMs"":1388},""usage"":{""inputTokens"":192,""outputTokens"":236,""totalTokens"":428}},""outputTokenCount"":236},""schemaType"":""ModelInvocationLog"",""schemaVersion"":""1.0""}"

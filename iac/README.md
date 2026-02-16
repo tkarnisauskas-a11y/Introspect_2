@@ -33,6 +33,11 @@ Deploy the EKS cluster using existing VPC:
 aws cloudformation create-stack --stack-name introspect-2-cluster --template-body file://iac\eks-cluster.yaml --capabilities CAPABILITY_IAM
 ```
 
+Add EKS addons:
+```
+iac/install-eks-addons.bat
+```
+
 ### 4. EKS Service Account IAM Role
 
 #### 1. Create the IAM OIDC Provider
@@ -42,6 +47,9 @@ eksctl utils associate-iam-oidc-provider --cluster=introspect-2-cluster --region
 
 #### 2. Update with IAM OIDC Provider
 Update iac\eks-irsa-simple.yaml with correct "Identity provider", created 
+```
+aws eks describe-cluster --name introspect-2-cluster --query "cluster.identity.oidc.issuer" --output text
+```
 
 #### 3. Run cloudformation to create Role
 ```cmd
