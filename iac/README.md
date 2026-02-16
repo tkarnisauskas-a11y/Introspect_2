@@ -101,16 +101,22 @@ kubectl get svc claims-api-nlb -n default
 
 ### 7. AWS Load Balancer Controller
 
-Set environment variables:
 ```cmd
 set AGW_AWS_REGION=us-east-1
 set AGW_EKS_CLUSTER_NAME=introspect-2-cluster
-```
 
-For full setup, run:
-```bash
-# On Linux/Mac, use the commands in iac/load-balancer.yaml
-# This installs AWS Load Balancer Controller for advanced routing
+for /f "tokens=*" %i in ('aws sts get-caller-identity --query Account --output text') do set AGW_ACCOUNT_ID=%i
+
+aws iam create-policy --policy-name AWSLoadBalancerControllerIAMPolicy-ClaimApiGW --policy-document file://iac/policy/alb-iam-policy.json
+
+eksctl create iamserviceaccount --cluster=%AGW_EKS_CLUSTER_NAME% --region %AGW_AWS_REGION% --namespace=kube-system --name=aws-load-balancer-controller --override-existing-serviceaccounts --attach-policy-arn=arn:aws:iam::%AGW_ACCOUNT_ID%:policy/AWSLoadBalancerControllerIAMPolicy-ClaimApiGW --approve
+
+for /f "tokens=*" %i in ('aws eks describe-cluster --name %AGW_EKS_CLUSTER_NAME% --region %AGW_AWS_REGION% --query "cluster.resourcesVpcConfig.vpcId" --output text') do set AGW_VPC_ID=%i
+
+helm repo add eks https://aws.github.io/eks-charts
+helm repo update
+
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=%AGW_EKS_CLUSTER_NAME% --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller --set vpcId=%AGW_VPC_ID% --set region=%AGW_AWS_REGION% --version 1.14.0
 ```
 
 ### 8. API Gateway with ACK Controller
