@@ -67,9 +67,9 @@ Respond in JSON format:
             }
         
         body = json.dumps({
-            "anthropic_version": "bedrock-2023-05-31",
+            "messages": [{"role": "user", "content": prompt}],
             "max_tokens": 1000,
-            "messages": [{"role": "user", "content": prompt}]
+            "anthropic_version": "bedrock-2023-05-31"
         })
         
         response = self.bedrock.invoke_model(modelId=self.config.bedrock_model_id, body=body)
